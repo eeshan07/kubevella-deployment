@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  template:
+    spec:
+      containers:
+        - name: mysvci
+          image: oamdev/hello-world
+    metadata:
+      labels:
+        app.oam.dev/component: mysvc
+  selector:
+    matchLabels:
+      app.oam.dev/component: mysvc
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: testvela-two
+spec:
+  parallelism: 1
+  completions: 1
+  template:
+    metadata:
+      name: testvela-two
+    spec:
+      containers:
+        - name: testvela-two
+          image: centos:7
+          command:
+            - bin/bash
+            - -c
+            - for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done
+      restartPolicy: Never
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hvela-cli-new
+spec:
+  ports:
+    - protocol: TCP
+      port: 8081
+  selector:
+    app: newvelacli
+  sessionAffinity: None
+  type: NodePort
